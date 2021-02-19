@@ -1,6 +1,6 @@
 // EarthOS Master Boot Record
 //
-//    Copyright (C) 2020  adazem009
+//    Copyright (C) 2021  adazem009
 //
 // This MBR looks for the first partition containing a boot.smc file.
 // It can load a bootloader or a full OS.
