@@ -1,0 +1,139 @@
+// EarthOS Master Boot Record
+//
+//    Copyright (C) 2020  adazem009
+//
+// This MBR looks for the first partition containing a boot.smc file.
+// It can load a bootloader or a full OS.
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+//
+// Note: Please avoid any unnecessary code in this source code.
+// 	 Try to keep it as minimal as possible to keep the MBR size below 4KB.
+//
+// Functions
+define/"_listpart"
+{
+	warp
+		// _listpart
+		// (no arguments)
+		// This commented piece of code below has been disabled because of a weird cow bug
+		// ...................moo
+		//getitem/"arg_1",1/"ol1"
+		//getitem/"arg_1",2/"ol2"
+		cpdisk/d,1/"bin"
+		bintolist/bin/"blist"
+		getlistlength/"blist"/"bl"
+		setlist/"pt","ptd"
+		set/"i",0
+		while/[i < bl]
+			// Partition name
+			calc/"i=i+1"
+			getitem/"blist",i/"pr"
+			append/pr/"pt"
+			// Partition size
+			calc/"i=i+1"
+			getitem/"blist",i/"pr"
+			append/pr/"pts"
+			// Partition content
+			calc/"i=i+1"
+			getitem/"blist",i/"pr"
+			append/pr/"ptd"
+		endloop
+	endwarp
+}
+define/"_ls"
+{
+	warp
+		// _ls/[path],[filesystem image]
+		getitem/"arg_1",1/"path"
+		getitem/"arg_1",2/"fs"
+		setlist/"ftypes","fnames","fdata"
+		// Convert binary
+		bintolist/fs/"fsl"
+		getlistlength/"fsl"/"fsll"
+		set/"i",1
+		//     ^^^ This is 1 because the first item is the filesystem format (FSSC2 in this case)
+		while/[i < fsll]
+			// Definition path
+			calc/"i=i+1"
+			getitem/"fsl",i/"def"
+			//print/"def=",def,\n
+			// Number of files
+			calc/"i=i+1"
+			getitem/"fsl",i/"c"
+			//print/"c=",c,\n
+			// Get files under current definition
+			repeat/c
+				// Type - file or folder
+				calc/"i=i+1"
+				getitem/"fsl",i/"ft"
+				// File name
+				calc/"i=i+1"
+				getitem/"fsl",i/"fn"
+				//print/fn,\n
+				// File data
+				calc/"i=i+1"
+				getitem/"fsl",i/"fd"
+				// Skip permissions, owner, group and attributes
+				calc/"i=i+4"
+				if/[def == path]
+					append/ft/"ftypes"
+					append/fn/"fnames"
+					append/fd/"fdata"
+				endif
+			endloop
+		endloop
+	endwarp
+}
+// The first thing the MBR does is to check if
+// the disk ID was passed correctly.
+set/"d",1
+//getitem/"arg_1",1/"d"
+calc/"t=d+0"
+if/[t == 0]
+	// Hmm... looks like a weird moo-infected hard drive was passed ...
+	// ...jusk kidding, it's NaN
+	print/"ERR 0x1",\n
+	wait/5
+	exit
+endif
+//print/"selected disk: ",d,\n
+// Then, it reads every partition and finds a boot.smc file.
+_listpart
+getlistlength/"pt"/"pl"
+//print/"found ",pl," partitions",\n
+set/"di",0
+repeat/pl
+	calc/"di=di+1"
+	//print/"selected partition: ",di,\n
+	getitem/"ptd",di/"ptbin"
+	_ls/"/",ptbin
+	getlistlength/"ftypes"/"fc"
+	set/"i2",0
+	while/[i2 < fc]
+		calc/"i2=i2+1"
+		getitem/"fnames",i2/"cfn"
+		//print/cfn,\n
+		if/[cfn == "boot.smc"]
+			getitem/"fdata",i2/"boot"
+			//print/"EXEC: ",boot,\n
+			run/boot,"bg"/d,di
+			exit
+		endif
+	endloop
+endloop
+// No boot partition found :'(
+print/\n,"ERR 0x2",\n
+wait/5
