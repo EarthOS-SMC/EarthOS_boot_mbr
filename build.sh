@@ -47,12 +47,12 @@ fi
 echo "Compiling ${name}.$ext"
 ./compile.sh "../${name}.$ext"
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'smc=($(cat ./output/${name}.smc))'
-echo "Creating BIOS image..."
+echo "Creating final image..."
 image=""
 i=0
 while (( i < ${#smc[@]} )); do
 	i=$((i+1))
-	echo -e "\e[1A\e[KCreating BIOS image... line $i of ${#smc[@]}..."
+	echo -e "\e[1A\e[KCreating final image... line $i of ${#smc[@]}..."
 	line="${smc[$((i-1))]}"
 	len=${#line}
 	image="${image}${len};${line}"
