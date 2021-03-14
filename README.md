@@ -21,3 +21,8 @@ To build the MBR,
 
 
 The binary will be saved in the `image` file. You can add it at the beginning of your virtual disk.
+
+## Reduce output
+
+You can reduce the output by putting `1` in the `reduce` file:
+`echo 1 > reduce`
