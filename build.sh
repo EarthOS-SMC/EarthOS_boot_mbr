@@ -1,5 +1,6 @@
 #!/bin/bash
 
+reduce=`cat reduce`
 if [[ "$2" == '' ]]; then
 	compiler="./compiler"
 else
@@ -45,7 +46,11 @@ if ! [ -f "../${name}.$ext" ]; then
 	exit 3
 fi
 echo "Compiling ${name}.$ext"
-./compile.sh "../${name}.$ext"
+./compile.sh "../${name}.$ext" "$reduce"
+sv=$?
+if (( $sv != 0 )); then
+	exit $sv
+fi
 IFS=$'\r\n' GLOBIGNORE='*' command eval  'smc=($(cat ./output/${name}.smc))'
 echo "Creating final image..."
 image=""
