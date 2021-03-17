@@ -99,8 +99,7 @@ define/"_ls"
 }
 // The first thing the MBR does is to check if
 // the disk ID was passed correctly.
-set/"d",1
-//getitem/"arg_1",1/"d"
+getitem/"arg_1",1/"d"
 calc/"t=d+0"
 if/[t == 0]
 	// Hmm... looks like a weird moo-infected hard drive was passed ...
