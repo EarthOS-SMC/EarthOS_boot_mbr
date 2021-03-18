@@ -23,7 +23,7 @@
 // 	 Try to keep it as minimal as possible to keep the MBR size below 4KB.
 //
 // Functions
-define/"_listpart"
+linkdef/"_listpart"
 {
 	warp
 		// _listpart
@@ -53,7 +53,7 @@ define/"_listpart"
 		endloop
 	endwarp
 }
-define/"_ls"
+linkdef/"_ls"
 {
 	warp
 		// _ls/[path],[filesystem image]
