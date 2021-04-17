@@ -6,6 +6,7 @@ if [[ "$2" == '' ]]; then
 else
 	compiler="$2"
 fi
+auto="$3"
 cd "$(dirname $BASH_SOURCE)"
 if ! [ -d "$compiler" ]; then
 	echo "Error: PowerSlash compiler not found. Did you run sync.sh?"
@@ -46,7 +47,7 @@ if ! [ -f "../${name}.$ext" ]; then
 	exit 3
 fi
 echo "Compiling ${name}.$ext"
-./compile.sh "../${name}.$ext" "$reduce"
+./compile.sh "../${name}.$ext" "$reduce" "" "$auto"
 sv=$?
 if (( $sv != 0 )); then
 	exit $sv
@@ -57,7 +58,9 @@ image=""
 i=0
 while (( i < ${#smc[@]} )); do
 	i=$((i+1))
-	echo -e "\e[1A\e[KCreating final image... line $i of ${#smc[@]}..."
+	if [[ "$auto" != "1" ]]; then
+		echo -e "\e[1A\e[KCreating final image... line $i of ${#smc[@]}..."
+	fi
 	line="${smc[$((i-1))]}"
 	len=${#line}
 	image="${image}${len};${line}"
