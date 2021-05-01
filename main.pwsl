@@ -28,7 +28,7 @@ include/"fssc2.pwsl"
 // the disk ID was passed correctly.
 getitem/"arg_1",1/"d"
 calc/"t=d+0"
-if/[t == 0]
+if/[t == 0] and [d != 0]
 	// Hmm... looks like a weird moo-infected hard drive was passed ...
 	// ...jusk kidding, it's NaN
 	print/"ERR 0x1",\n
